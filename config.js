@@ -5,8 +5,8 @@ module.exports = {
   language: "en",
   ownerID: ["1004206704994566164", ""], 
   mongodbUri : "mongodb+srv://Luffy:OrewaLuffy@utabot.qn9okz8.mongodb.net/?retryWrites=true&w=majority",
-  spotifyClientId : "f71a3da30e254962965ca2a89d6f74b9",
-  spotifyClientSecret : "199a619d22dd4e55a4a2c1a7a3d70e63",
+  spotifyClientId : "",
+  spotifyClientSecret : "",
   setupFilePath: './commands/setup.json',
   commandsDir: './commands',  
   embedColor: "#1db954",
@@ -18,9 +18,9 @@ module.exports = {
   nodes: [
      {
       name: "Uta",
-      password: "glaceyt",
-      host: "5.39.63.207",
-      port:  8262,
+      password: "youshallnotpass",
+      host: "gh46.glacierhosting.org",
+      port:  25583,
       secure: false
     }
   ]
