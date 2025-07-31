@@ -17,7 +17,7 @@ module.exports = {
   errorLog: "", 
   nodes: [
      {
-      name: "Uta",
+      name: "MuzammilOPYT",
       password: "yourpasswordhere",
       host: "ind1.zapto.org",
       port:  25575,
