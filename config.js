@@ -18,9 +18,9 @@ module.exports = {
   nodes: [
      {
       name: "Uta",
-      password: "youshallnotpass",
-      host: "gh46.glacierhosting.org",
-      port:  25583,
+      password: "https://camming.xyz",
+      host: "194.58.66.44",
+      port:  6709,
       secure: false
     }
   ]
