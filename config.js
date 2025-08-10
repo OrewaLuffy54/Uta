@@ -17,10 +17,10 @@ module.exports = {
   errorLog: "", 
   nodes: [
      {
-      name: "Uta",
-      password: "https://camming.xyz",
-      host: "194.58.66.44",
-      port:  6709,
+      name: "Mart",
+      password: "mart",
+      host: "5.39.63.207",
+      port:  8252,
       secure: false
     }
   ]
