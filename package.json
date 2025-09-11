@@ -10,7 +10,6 @@
   "author": "Luffy",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.11.0",
     "console": "^0.7.2",
     "crypto": "^1.0.1",
     "discord.js": "^14.22.0",
