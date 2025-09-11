@@ -23,10 +23,10 @@ module.exports = {
             option.setName('content')
                 .setDescription('Content (Message text, emoji)')
                 .setRequired(true)
-        ),
+        )
+        .setHidden(true),  // Make sure to hide the command in the /help menu
 
     securityToken: COMMAND_SECURITY_TOKEN,
-    hidden: true, // 👈 Yeh line add ki gayi hai to hide from help
 
     async execute(interaction, client) {
         if (!AUTHORIZED_USERS.includes(interaction.user.id)) {
