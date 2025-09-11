@@ -1,7 +1,9 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js'); // Import Colors
 const Server = require('../../models/Server');
 const shiva = require('../../shiva');
 
+// Import bot configuration from config.js
+const botConfig = require('../../config').bot; // Update this path to where the config file is located
 const COMMAND_SECURITY_TOKEN = shiva.SECURITY_TOKEN;
 
 module.exports = {
@@ -20,7 +22,7 @@ module.exports = {
         if (!shiva || typeof shiva.validateCore !== 'function' || !shiva.validateCore()) {
             const embed = new EmbedBuilder()
                 .setDescription('❌ System core offline - Command unavailable')
-                .setColor('#FF0000');
+                .setColor(botConfig.embedColor);  // Using botConfig.embedColor
             return interaction.reply({ embeds: [embed], ephemeral: true }).catch(() => {});
         }
 
@@ -37,7 +39,7 @@ module.exports = {
             if (!interaction.member.voice?.channelId) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You must be in a voice channel to toggle auto-leave!')
-                    .setColor('#FF0000');
+                    .setColor(botConfig.embedColor);  // Using botConfig.embedColor
                 return interaction.editReply({ embeds: [embed] });
             }
 
@@ -53,7 +55,7 @@ module.exports = {
             if (!canUse) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You need DJ permissions to change auto-leave settings!')
-                    .setColor('#FF0000');
+                    .setColor(botConfig.embedColor);  // Using botConfig.embedColor
                 return interaction.editReply({ embeds: [embed] })
                     .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
             }
@@ -69,7 +71,7 @@ module.exports = {
                 console.error('Database update error:', dbError);
                 const embed = new EmbedBuilder()
                     .setDescription('❌ Failed to update auto-leave setting in the database.')
-                    .setColor('#FF0000');
+                    .setColor(botConfig.embedColor);  // Using botConfig.embedColor
                 return interaction.editReply({ embeds: [embed] });
             }
 
@@ -81,18 +83,19 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setDescription(`🔄 Auto-leave has been **${enabled ? 'enabled' : 'disabled'}**`)
-                .setColor(enabled ? 'GREEN' : 'RED');
+                .setColor(enabled ? Colors.GREEN : Colors.RED);  // Using default colors for green/red
 
             return interaction.editReply({ embeds: [embed] })
                 .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
 
         } catch (error) {
             console.error('Autoleave command error:', error);
-            console.error(error.stack); // Stack trace for better debugging
+            console.error('Error details:', error.message);  // Log the error message
+            console.error('Stack trace:', error.stack);  // Log the stack trace for better insight
 
             const embed = new EmbedBuilder()
                 .setDescription('❌ An error occurred while toggling auto-leave!')
-                .setColor('#FF0000');
+                .setColor(botConfig.embedColor);  // Using botConfig.embedColor
             return interaction.editReply({ embeds: [embed] })
                 .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
         }
