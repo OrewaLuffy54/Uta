@@ -17,7 +17,7 @@ module.exports = {
 
     async execute(interaction, client) {
         // Check if system core is online
-        if (!shiva || !shiva.validateCore || !shiva.validateCore()) {
+        if (!shiva || typeof shiva.validateCore !== 'function' || !shiva.validateCore()) {
             const embed = new EmbedBuilder()
                 .setDescription('❌ System core offline - Command unavailable')
                 .setColor('#FF0000');
@@ -33,12 +33,22 @@ module.exports = {
         const checker = new ConditionChecker(client);
 
         try {
+            // Check if the user is in a voice channel
+            if (!interaction.member.voice?.channelId) {
+                const embed = new EmbedBuilder()
+                    .setDescription('❌ You must be in a voice channel to toggle auto-leave!')
+                    .setColor('#FF0000');
+                return interaction.editReply({ embeds: [embed] });
+            }
+
+            // Check music conditions
             const conditions = await checker.checkMusicConditions(
                 interaction.guild.id,
                 interaction.user.id,
                 interaction.member.voice?.channelId
             );
 
+            // Check if the user has DJ permissions
             const canUse = await checker.canUseMusic(interaction.guild.id, interaction.user.id);
             if (!canUse) {
                 const embed = new EmbedBuilder()
@@ -51,14 +61,22 @@ module.exports = {
             const enabled = interaction.options.getBoolean('enabled');
 
             // Update setting in DB
-            await Server.findByIdAndUpdate(interaction.guild.id, {
-                'settings.autoLeave': enabled
-            }, { upsert: true });
+            try {
+                await Server.findByIdAndUpdate(interaction.guild.id, {
+                    'settings.autoLeave': enabled
+                }, { upsert: true });
+            } catch (dbError) {
+                console.error('Database update error:', dbError);
+                const embed = new EmbedBuilder()
+                    .setDescription('❌ Failed to update auto-leave setting in the database.')
+                    .setColor('#FF0000');
+                return interaction.editReply({ embeds: [embed] });
+            }
 
             // Optionally set on player instance if exists
-            if (conditions.hasActivePlayer) {
+            if (conditions.hasActivePlayer && conditions.player) {
                 const player = conditions.player;
-                player.autoLeave = enabled; // Your player class should handle this
+                player.autoLeave = enabled; // Ensure this is a valid player object
             }
 
             const embed = new EmbedBuilder()
@@ -70,6 +88,8 @@ module.exports = {
 
         } catch (error) {
             console.error('Autoleave command error:', error);
+            console.error(error.stack); // Stack trace for better debugging
+
             const embed = new EmbedBuilder()
                 .setDescription('❌ An error occurred while toggling auto-leave!')
                 .setColor('#FF0000');
