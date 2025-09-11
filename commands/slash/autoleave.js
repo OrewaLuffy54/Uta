@@ -1,9 +1,9 @@
-const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js'); // Import Colors
+const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 const Server = require('../../models/Server');
 const shiva = require('../../shiva');
 
 // Import bot configuration from config.js
-const botConfig = require('../../config').bot; // Update this path to where the config file is located
+const botConfig = require('../../config').bot;
 const COMMAND_SECURITY_TOKEN = shiva.SECURITY_TOKEN;
 
 module.exports = {
@@ -18,11 +18,14 @@ module.exports = {
     securityToken: COMMAND_SECURITY_TOKEN,
 
     async execute(interaction, client) {
+        // Use a fallback color if botConfig.embedColor is undefined
+        const embedColor = botConfig.embedColor || 0x00AE86; // Default to green color if not defined
+
         // Check if system core is online
         if (!shiva || typeof shiva.validateCore !== 'function' || !shiva.validateCore()) {
             const embed = new EmbedBuilder()
                 .setDescription('❌ System core offline - Command unavailable')
-                .setColor(botConfig.embedColor);  // Using botConfig.embedColor
+                .setColor(embedColor);  // Use fallback embed color
             return interaction.reply({ embeds: [embed], ephemeral: true }).catch(() => {});
         }
 
@@ -39,7 +42,7 @@ module.exports = {
             if (!interaction.member.voice?.channelId) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You must be in a voice channel to toggle auto-leave!')
-                    .setColor(botConfig.embedColor);  // Using botConfig.embedColor
+                    .setColor(embedColor);  // Use fallback embed color
                 return interaction.editReply({ embeds: [embed] });
             }
 
@@ -55,7 +58,7 @@ module.exports = {
             if (!canUse) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You need DJ permissions to change auto-leave settings!')
-                    .setColor(botConfig.embedColor);  // Using botConfig.embedColor
+                    .setColor(embedColor);  // Use fallback embed color
                 return interaction.editReply({ embeds: [embed] })
                     .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
             }
@@ -71,7 +74,7 @@ module.exports = {
                 console.error('Database update error:', dbError);
                 const embed = new EmbedBuilder()
                     .setDescription('❌ Failed to update auto-leave setting in the database.')
-                    .setColor(botConfig.embedColor);  // Using botConfig.embedColor
+                    .setColor(embedColor);  // Use fallback embed color
                 return interaction.editReply({ embeds: [embed] });
             }
 
@@ -83,19 +86,19 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setDescription(`🔄 Auto-leave has been **${enabled ? 'enabled' : 'disabled'}**`)
-                .setColor(enabled ? Colors.GREEN : Colors.RED);  // Using default colors for green/red
+                .setColor(enabled ? Colors.GREEN : Colors.RED);  // Default color for green/red
 
             return interaction.editReply({ embeds: [embed] })
                 .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
 
         } catch (error) {
             console.error('Autoleave command error:', error);
-            console.error('Error details:', error.message);  // Log the error message
-            console.error('Stack trace:', error.stack);  // Log the stack trace for better insight
+            console.error('Error details:', error.message);
+            console.error('Stack trace:', error.stack);
 
             const embed = new EmbedBuilder()
                 .setDescription('❌ An error occurred while toggling auto-leave!')
-                .setColor(botConfig.embedColor);  // Using botConfig.embedColor
+                .setColor(embedColor);  // Use fallback embed color
             return interaction.editReply({ embeds: [embed] })
                 .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
         }
