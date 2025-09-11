@@ -58,7 +58,7 @@ class EnterpriseConfigurationManager {
             centralSystem: true,      // 👈 Enable central music control system
             autoVcCreation: true,     // 👈 🔥 PREMIUM: Auto voice channel creation
             updateStatus: true,       // 👈 Update bot status with current song  
-            autoDeaf: true,           // 👈 Auto-deafen bot in voice channels
+            autoDeaf: false,           // 👈 Auto-deafen bot in voice channels
             autoMute: false,          // 👈 Auto-mute bot in voice channels
             resetOnEnd: true          // 👈 Reset player when queue ends
         };
@@ -101,3 +101,4 @@ module.exports = primaryApplicationConfiguration;
  * Never share your bot token or database URI publicly!
  * Use environment variables in production!
  */
+
