@@ -18,16 +18,17 @@ module.exports = {
     securityToken: COMMAND_SECURITY_TOKEN,
 
     async execute(interaction, client) {
-        // Use a fallback color if botConfig.embedColor is undefined
-        const embedColor = botConfig.embedColor || 0x00AE86; // Default to green color if not defined
-
-        // Check if system core is online
-        if (!shiva || typeof shiva.validateCore !== 'function' || !shiva.validateCore()) {
+        // Check if Shiva core is online
+        if (!shiva || !shiva.validateCore || !shiva.validateCore()) {
+            console.error('💀 CRITICAL: Shiva core validation failed in autoleave');
             const embed = new EmbedBuilder()
-                .setDescription('❌ System core offline - Command unavailable')
-                .setColor(embedColor);  // Use fallback embed color
+                .setDescription('❌ System core offline - Bot unavailable')
+                .setColor(Colors.RED);  // Using a predefined red color from Colors
             return interaction.reply({ embeds: [embed], ephemeral: true }).catch(() => {});
         }
+
+        // Use a fallback color if botConfig.embedColor is undefined
+        const embedColor = botConfig.embedColor || 0x00AE86;  // Default to green color if not defined
 
         interaction.shivaValidated = true;
         interaction.securityToken = COMMAND_SECURITY_TOKEN;
@@ -42,7 +43,7 @@ module.exports = {
             if (!interaction.member.voice?.channelId) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You must be in a voice channel to toggle auto-leave!')
-                    .setColor(embedColor);  // Use fallback embed color
+                    .setColor(embedColor);  // Using fallback embed color
                 return interaction.editReply({ embeds: [embed] });
             }
 
@@ -58,7 +59,7 @@ module.exports = {
             if (!canUse) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You need DJ permissions to change auto-leave settings!')
-                    .setColor(embedColor);  // Use fallback embed color
+                    .setColor(embedColor);  // Using fallback embed color
                 return interaction.editReply({ embeds: [embed] })
                     .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
             }
@@ -74,7 +75,7 @@ module.exports = {
                 console.error('Database update error:', dbError);
                 const embed = new EmbedBuilder()
                     .setDescription('❌ Failed to update auto-leave setting in the database.')
-                    .setColor(embedColor);  // Use fallback embed color
+                    .setColor(embedColor);  // Using fallback embed color
                 return interaction.editReply({ embeds: [embed] });
             }
 
