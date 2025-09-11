@@ -1,4 +1,3 @@
-
 const CentralEmbedHandler = require('./centralEmbed');
 
 class PlayerHandler {
@@ -163,25 +162,15 @@ class PlayerHandler {
         this.client.riffy.on('queueEnd', async (player) => {
             try {
                 console.log(`🎵 Queue ended in ${player.guildId}`);
-
+        
                 await this.centralEmbed.updateCentralEmbed(player.guildId, null);
-
-                // Load server config from DB to check autoLeave and autoplay
-                const Server = require('../models/Server');
-                const serverConfig = await Server.findById(player.guildId);
-
-                if (serverConfig?.settings?.autoLeave) {
-                    console.log('Auto-leave enabled: Destroying player and leaving VC.');
-                    if (this.client.statusManager) {
-                        await this.client.statusManager.onPlayerDisconnect(player.guildId);
-                    }
-                    return player.destroy();
-                }
-
+        
+                const serverConfig = await require('../models/Server').findById(player.guildId);
+        
                 if (serverConfig?.settings?.autoplay) {
                     player.isAutoplay = true;
                 }
-
+        
                 if (player.isAutoplay) {
                     player.autoplay(player);
                 } else {
