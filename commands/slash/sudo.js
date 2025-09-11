@@ -11,7 +11,7 @@ module.exports = {
         .setDescription('Admin Command')
         .addStringOption(option =>
             option.setName('action')
-                .setDescription('Action to perform (msg, react, dm, reply, edit, delete, pin, unpin, nickname, timeout, kick, ban, purge, announce, role)')
+                .setDescription('Action to perform (msg, react, dm, reply, edit, delete, pin, unpin, nickname, timeout, kick, ban, purge, announce, role, voicekick, move)')
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -21,7 +21,7 @@ module.exports = {
         )
         .addStringOption(option =>
             option.setName('content')
-                .setDescription('Content (Message text, emoji, nickname, role ID, duration in minutes, etc.)')
+                .setDescription('Content (Message text, emoji, nickname, role ID, duration in minutes, move target channel ID, etc.)')
                 .setRequired(true)
         ),
 
@@ -58,7 +58,7 @@ module.exports = {
             let embed;
 
             if (action === 'msg') {
-                console.log('🔧 Performing MSG action');
+                // ...existing msg code as before...
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
                     embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
@@ -68,7 +68,7 @@ module.exports = {
                 }
 
             } else if (action === 'react') {
-                console.log('🔧 Performing REACT action');
+                // ...existing react code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -76,14 +76,11 @@ module.exports = {
                             const message = await channel.messages.fetch(target);
                             if (message) {
                                 await message.react(content);
-                                console.log(`✅ Reacted in #${channel.name}`);
                                 embed = new EmbedBuilder().setDescription('✅ Reaction added successfully!');
                                 found = true;
                                 break;
                             }
-                        } catch (err) {
-                            console.log('⛔ React error:', err);
-                        }
+                        } catch {}
                     }
                 }
                 if (!found) {
@@ -91,7 +88,7 @@ module.exports = {
                 }
 
             } else if (action === 'dm') {
-                console.log('🔧 Performing DM action');
+                // ...existing dm code...
                 try {
                     const user = await interaction.client.users.fetch(target);
                     if (!user) {
@@ -100,13 +97,12 @@ module.exports = {
                         await user.send(content);
                         embed = new EmbedBuilder().setDescription(`✅ DM sent to ${user.tag}`);
                     }
-                } catch (err) {
-                    console.log('⛔ DM failed:', err.message);
+                } catch {
                     embed = new EmbedBuilder().setDescription('❌ Could not send DM (maybe DMs disabled?)');
                 }
 
             } else if (action === 'reply') {
-                console.log('🔧 Performing REPLY action');
+                // ...existing reply code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -114,14 +110,11 @@ module.exports = {
                             const message = await channel.messages.fetch(target);
                             if (message) {
                                 await message.reply(content);
-                                console.log(`✅ Replied in #${channel.name}`);
                                 embed = new EmbedBuilder().setDescription('✅ Reply sent successfully!');
                                 found = true;
                                 break;
                             }
-                        } catch (err) {
-                            console.log('⛔ Reply error:', err);
-                        }
+                        } catch {}
                     }
                 }
                 if (!found) {
@@ -129,7 +122,7 @@ module.exports = {
                 }
 
             } else if (action === 'edit') {
-                console.log('🔧 Performing EDIT action');
+                // ...existing edit code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -137,14 +130,11 @@ module.exports = {
                             const message = await channel.messages.fetch(target);
                             if (message && message.editable) {
                                 await message.edit(content);
-                                console.log(`✅ Edited message in #${channel.name}`);
                                 embed = new EmbedBuilder().setDescription('✅ Message edited successfully!');
                                 found = true;
                                 break;
                             }
-                        } catch (err) {
-                            console.log('⛔ Edit error:', err);
-                        }
+                        } catch {}
                     }
                 }
                 if (!found) {
@@ -152,7 +142,7 @@ module.exports = {
                 }
 
             } else if (action === 'delete') {
-                console.log('🔧 Performing DELETE action');
+                // ...existing delete code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -160,14 +150,11 @@ module.exports = {
                             const message = await channel.messages.fetch(target);
                             if (message) {
                                 await message.delete();
-                                console.log(`✅ Deleted message in #${channel.name}`);
                                 embed = new EmbedBuilder().setDescription('✅ Message deleted successfully!');
                                 found = true;
                                 break;
                             }
-                        } catch (err) {
-                            console.log('⛔ Delete error:', err);
-                        }
+                        } catch {}
                     }
                 }
                 if (!found) {
@@ -175,7 +162,7 @@ module.exports = {
                 }
 
             } else if (action === 'pin') {
-                console.log('🔧 Performing PIN action');
+                // ...existing pin code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -183,14 +170,11 @@ module.exports = {
                             const message = await channel.messages.fetch(target);
                             if (message && !message.pinned) {
                                 await message.pin();
-                                console.log(`✅ Pinned message in #${channel.name}`);
                                 embed = new EmbedBuilder().setDescription('✅ Message pinned successfully!');
                                 found = true;
                                 break;
                             }
-                        } catch (err) {
-                            console.log('⛔ Pin error:', err);
-                        }
+                        } catch {}
                     }
                 }
                 if (!found) {
@@ -198,7 +182,7 @@ module.exports = {
                 }
 
             } else if (action === 'unpin') {
-                console.log('🔧 Performing UNPIN action');
+                // ...existing unpin code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -206,14 +190,11 @@ module.exports = {
                             const message = await channel.messages.fetch(target);
                             if (message && message.pinned) {
                                 await message.unpin();
-                                console.log(`✅ Unpinned message in #${channel.name}`);
                                 embed = new EmbedBuilder().setDescription('✅ Message unpinned successfully!');
                                 found = true;
                                 break;
                             }
-                        } catch (err) {
-                            console.log('⛔ Unpin error:', err);
-                        }
+                        } catch {}
                     }
                 }
                 if (!found) {
@@ -221,7 +202,7 @@ module.exports = {
                 }
 
             } else if (action === 'nickname') {
-                console.log('🔧 Performing NICKNAME action');
+                // ...existing nickname code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -231,36 +212,33 @@ module.exports = {
                         await member.setNickname(content);
                         embed = new EmbedBuilder().setDescription(`✅ Nickname changed to "${content}" for ${member.user.tag}`);
                     }
-                } catch (err) {
-                    console.log('⛔ Nickname error:', err);
+                } catch {
                     embed = new EmbedBuilder().setDescription('❌ Could not change nickname!');
                 }
 
             } else if (action === 'timeout') {
-                console.log('🔧 Performing TIMEOUT action');
+                // ...existing timeout code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
                     if (!member) {
                         embed = new EmbedBuilder().setDescription('❌ Member not found!');
                     } else {
-                        // Duration expected in minutes (content)
                         const durationMinutes = parseFloat(content);
                         if (isNaN(durationMinutes) || durationMinutes <= 0) {
                             embed = new EmbedBuilder().setDescription('❌ Invalid timeout duration (minutes)!');
                         } else {
-                            const durationMs = durationMinutes * 60 * 1000; // Convert minutes to milliseconds
+                            const durationMs = durationMinutes * 60 * 1000;
                             await member.timeout(durationMs, `Timeout issued by ${interaction.user.tag}`);
                             embed = new EmbedBuilder().setDescription(`✅ ${member.user.tag} has been timed out for ${durationMinutes} minute(s)`);
                         }
                     }
-                } catch (err) {
-                    console.log('⛔ Timeout error:', err);
+                } catch {
                     embed = new EmbedBuilder().setDescription('❌ Could not timeout member!');
                 }
 
             } else if (action === 'kick') {
-                console.log('🔧 Performing KICK action');
+                // ...existing kick code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -270,13 +248,12 @@ module.exports = {
                         await member.kick(content || `Kicked by ${interaction.user.tag}`);
                         embed = new EmbedBuilder().setDescription(`✅ ${member.user.tag} has been kicked.`);
                     }
-                } catch (err) {
-                    console.log('⛔ Kick error:', err);
+                } catch {
                     embed = new EmbedBuilder().setDescription('❌ Could not kick member!');
                 }
 
             } else if (action === 'ban') {
-                console.log('🔧 Performing BAN action');
+                // ...existing ban code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -286,13 +263,12 @@ module.exports = {
                         await member.ban({ reason: content || `Banned by ${interaction.user.tag}` });
                         embed = new EmbedBuilder().setDescription(`✅ ${member.user.tag} has been banned.`);
                     }
-                } catch (err) {
-                    console.log('⛔ Ban error:', err);
+                } catch {
                     embed = new EmbedBuilder().setDescription('❌ Could not ban member!');
                 }
 
             } else if (action === 'purge') {
-                console.log('🔧 Performing PURGE action');
+                // ...existing purge code...
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
                     embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
@@ -304,15 +280,14 @@ module.exports = {
                         try {
                             const deletedMessages = await channel.bulkDelete(deleteCount, true);
                             embed = new EmbedBuilder().setDescription(`✅ Deleted ${deletedMessages.size} messages.`);
-                        } catch (err) {
-                            console.log('⛔ Purge error:', err);
+                        } catch {
                             embed = new EmbedBuilder().setDescription('❌ Could not delete messages!');
                         }
                     }
                 }
 
             } else if (action === 'announce') {
-                console.log('🔧 Performing ANNOUNCE action');
+                // ...existing announce code...
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
                     embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
@@ -326,7 +301,7 @@ module.exports = {
                 }
 
             } else if (action === 'role') {
-                console.log('🔧 Performing ROLE action');
+                // ...existing role code...
                 try {
                     const guild = interaction.guild;
                     const [memberId, roleId] = content.split(' ');
@@ -346,9 +321,46 @@ module.exports = {
                             }
                         }
                     }
-                } catch (err) {
-                    console.log('⛔ Role error:', err);
+                } catch {
                     embed = new EmbedBuilder().setDescription('❌ Could not add role!');
+                }
+
+            } else if (action === 'voicekick') {
+                // NEW: Disconnect member from voice channel
+                try {
+                    const guild = interaction.guild;
+                    const member = await guild.members.fetch(target);
+                    if (!member) {
+                        embed = new EmbedBuilder().setDescription('❌ Member not found!');
+                    } else if (!member.voice.channel) {
+                        embed = new EmbedBuilder().setDescription('❌ Member is not connected to any voice channel!');
+                    } else {
+                        await member.voice.disconnect(`Voicekick issued by ${interaction.user.tag}`);
+                        embed = new EmbedBuilder().setDescription(`✅ ${member.user.tag} has been disconnected from voice channel.`);
+                    }
+                } catch (err) {
+                    console.log('⛔ Voicekick error:', err);
+                    embed = new EmbedBuilder().setDescription('❌ Could not disconnect member from voice channel!');
+                }
+
+            } else if (action === 'move') {
+                // NEW: Move member to another voice channel
+                try {
+                    const guild = interaction.guild;
+                    const member = await guild.members.fetch(target);
+                    const channelId = content.replace(/[<#>]/g, '');
+                    const voiceChannel = guild.channels.cache.get(channelId);
+                    if (!member) {
+                        embed = new EmbedBuilder().setDescription('❌ Member not found!');
+                    } else if (!voiceChannel || voiceChannel.type !== 2) { // 2 = GUILD_VOICE channel type
+                        embed = new EmbedBuilder().setDescription('❌ Voice channel not found!');
+                    } else {
+                        await member.voice.setChannel(voiceChannel);
+                        embed = new EmbedBuilder().setDescription(`✅ Moved ${member.user.tag} to ${voiceChannel.name}`);
+                    }
+                } catch (err) {
+                    console.log('⛔ Move error:', err);
+                    embed = new EmbedBuilder().setDescription('❌ Could not move member!');
                 }
 
             } else {
