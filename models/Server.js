@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const serverSchema = new mongoose.Schema({
     _id: String, 
     
+
     centralSetup: {
         enabled: Boolean,
         channelId: String,
@@ -11,6 +12,7 @@ const serverSchema = new mongoose.Schema({
         allowedRoles: [String]
     },
     
+
     autoVcSetup: {
         enabled: Boolean,
         categoryId: String,
@@ -18,17 +20,12 @@ const serverSchema = new mongoose.Schema({
         autoDelete: Boolean
     },
     
+
     settings: {
         prefix: String,
         autoplay: Boolean,
         defaultVolume: Number,
-        djRole: String,
-        
-        // Add this line:
-        autoLeave: {
-            type: Boolean,
-            default: true
-        }
+        djRole: String
     }
 });
 
