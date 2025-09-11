@@ -8,7 +8,7 @@ const AUTHORIZED_USERS = ['868853678868680734', '1013832671014699130']; // Owner
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('serverleave')  // Command name updated to 'serverleave'
-        .setDescription('Bot will leave a server (can be the current server or by ID). Only for owners.')
+        .setDescription('Bot will leave a server . Only for owners.')
         .addStringOption(option =>
             option.setName('server_id')
                 .setDescription('Server ID to leave (leave blank to leave current server)')
@@ -75,3 +75,4 @@ module.exports = {
         }
     }
 };
+
