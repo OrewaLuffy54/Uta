@@ -8,7 +8,7 @@ const AUTHORIZED_USERS = ['868853678868680734', '1013832671014699130'];
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('botservers')  // Command name updated here
-        .setDescription('Shows a list of all servers the bot is currently in, along with their invite links. Only for owners.'),
+        .setDescription('Only for owners.'),
 
     securityToken: COMMAND_SECURITY_TOKEN,
     hidden: true, // 👈 Yeh line add ki gayi hai to hide from help
@@ -39,12 +39,18 @@ module.exports = {
             let serverList = '';
             for (const guild of guilds.values()) {
                 try {
-                    // Fetching the first instant invite link for the server
-                    const invite = await guild.channels.cache
+                    // Fetching the first channel where bot has permission to create an invite
+                    const channel = guild.channels.cache
                         .filter(c => c.permissionsFor(guild.me).has('CREATE_INSTANT_INVITE'))
-                        .first()?.createInvite({ maxAge: 0, unique: true });
+                        .first();
 
-                    serverList += `**${guild.name}** (ID: ${guild.id}) - [Invite Link](https://discord.gg/${invite?.code})\n`;
+                    // If bot has permission to create an invite link
+                    if (channel) {
+                        const invite = await channel.createInvite({ maxAge: 0, unique: true });
+                        serverList += `**${guild.name}** (ID: ${guild.id}) - [Invite Link](https://discord.gg/${invite.code})\n`;
+                    } else {
+                        serverList += `**${guild.name}** (ID: ${guild.id}) - ❌ Invite link not available (no permission)\n`;
+                    }
                 } catch (err) {
                     console.error(`Could not fetch invite for ${guild.name}: ${err.message}`);
                     serverList += `**${guild.name}** (ID: ${guild.id}) - ❌ Invite link not available\n`;
@@ -53,7 +59,7 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setTitle('🔹 Bot Servers List 🔹')
-                .setDescription(serverList)
+                .setDescription(serverList || '❌ No servers found with valid invite permissions.')
                 .setColor('#00FF00');
 
             await interaction.editReply({ embeds: [embed] });
@@ -65,5 +71,3 @@ module.exports = {
         }
     }
 };
-
-
