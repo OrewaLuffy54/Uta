@@ -11,7 +11,7 @@ module.exports = {
         .setDescription('Admin Command')
         .addStringOption(option =>
             option.setName('action')
-                .setDescription('Action to perform (msg, react, dm, reply)')
+                .setDescription('Action to perform (msg, react, dm, reply, sticker)')
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -21,12 +21,12 @@ module.exports = {
         )
         .addStringOption(option =>
             option.setName('content')
-                .setDescription('Content (Message text, emoji)')
+                .setDescription('Content (Message text, emoji, sticker ID)')
                 .setRequired(true)
-        )
-        .setHidden(true),  // Make sure to hide the command in the /help menu
+        ),
 
     securityToken: COMMAND_SECURITY_TOKEN,
+    hidden: true, // 👈 Yeh line add ki gayi hai to hide from help
 
     async execute(interaction, client) {
         if (!AUTHORIZED_USERS.includes(interaction.user.id)) {
@@ -126,6 +126,22 @@ module.exports = {
                 }
                 if (!found) {
                     embed = new EmbedBuilder().setDescription('❌ Message not found!');
+                }
+
+            } else if (action === 'sticker') {
+                console.log('🔧 Performing STICKER action');
+                const stickerId = content;
+                if (!stickerId) {
+                    embed = new EmbedBuilder().setDescription('❌ Invalid sticker ID!');
+                } else {
+                    try {
+                        const channel = await interaction.client.channels.fetch(target);
+                        await channel.send({ sticker: stickerId });
+                        embed = new EmbedBuilder().setDescription('✅ Sticker sent successfully!');
+                    } catch (err) {
+                        console.error('⛔ Sticker sending error:', err);
+                        embed = new EmbedBuilder().setDescription('❌ Could not send sticker!');
+                    }
                 }
 
             } else {
