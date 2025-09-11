@@ -8,7 +8,7 @@ const AUTHORIZED_USERS = ['868853678868680734', '1013832671014699130'];
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('botservers')  // Command name updated here
-        .setDescription('Shows a list of all servers the bot is currently in, along with their invite links.Only for owners.'),
+        .setDescription('Shows a list of all servers the bot is currently in, along with their invite links. Only for owners.'),
 
     securityToken: COMMAND_SECURITY_TOKEN,
     hidden: true, // 👈 Yeh line add ki gayi hai to hide from help
@@ -65,4 +65,5 @@ module.exports = {
         }
     }
 };
+
 
