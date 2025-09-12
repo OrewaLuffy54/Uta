@@ -15,36 +15,38 @@ module.exports = {
 
     async execute(interaction, client) {
         try {
-            // Validate core
+            // ✅ Defer reply early to prevent timeout
+            await interaction.deferReply();
+
+            // ✅ Now validate core AFTER deferring
             if (!shiva || !shiva.validateCore || !shiva.validateCore()) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ System core offline - Command unavailable')
                     .setColor('#FF0000');
-                return await interaction.reply({ embeds: [embed], ephemeral: true });
+                await interaction.editReply({ embeds: [embed] });
+                return setTimeout(() => interaction.deleteReply().catch(() => {}), 3000);
             }
 
             interaction.shivaValidated = true;
             interaction.securityToken = COMMAND_SECURITY_TOKEN;
 
-            // Acknowledge interaction
-            await interaction.deferReply();
-
+            // Load utils AFTER deferring
             const ConditionChecker = require('../../utils/checks');
             const PlayerHandler = require('../../utils/player');
             const ErrorHandler = require('../../utils/errorHandler');
-            
-            const query = interaction.options.getString('query');
 
+            const query = interaction.options.getString('query');
             const checker = new ConditionChecker(client);
+
             const conditions = await checker.checkMusicConditions(
-                interaction.guild.id, 
-                interaction.user.id, 
+                interaction.guild.id,
+                interaction.user.id,
                 interaction.member.voice?.channelId
             );
 
             const errorMsg = checker.getErrorMessage(conditions, 'play');
             if (errorMsg) {
-                const embed = new EmbedBuilder().setDescription(errorMsg);
+                const embed = new EmbedBuilder().setDescription(errorMsg).setColor('#FF0000');
                 await interaction.editReply({ embeds: [embed] });
                 return setTimeout(() => interaction.deleteReply().catch(() => {}), 3000);
             }
@@ -60,11 +62,17 @@ module.exports = {
 
             let embed;
             if (result.type === 'track') {
-                embed = new EmbedBuilder().setDescription(`✅ Added to queue: **${result.track.info.title}**`);
+                embed = new EmbedBuilder()
+                    .setDescription(`✅ Added to queue: **${result.track.info.title}**`)
+                    .setColor('#00FF00');
             } else if (result.type === 'playlist') {
-                embed = new EmbedBuilder().setDescription(`✅ Added **${result.tracks}** songs from playlist: **${result.name}**`);
+                embed = new EmbedBuilder()
+                    .setDescription(`✅ Added **${result.tracks}** songs from playlist: **${result.name}**`)
+                    .setColor('#00FF00');
             } else {
-                embed = new EmbedBuilder().setDescription('❌ No results found for your query!');
+                embed = new EmbedBuilder()
+                    .setDescription('❌ No results found for your query!')
+                    .setColor('#FF0000');
             }
 
             await interaction.editReply({ embeds: [embed] });
@@ -73,7 +81,6 @@ module.exports = {
         } catch (error) {
             console.error('Play slash command error:', error);
 
-            // Optional: use your custom error handler
             const ErrorHandler = require('../../utils/errorHandler');
             ErrorHandler.handle?.(error, 'play slash command');
 
@@ -81,11 +88,15 @@ module.exports = {
                 .setDescription('❌ An error occurred while trying to play music!')
                 .setColor('#FF0000');
 
-            // Only reply if not already done
-            if (!interaction.replied && !interaction.deferred) {
-                return interaction.reply({ embeds: [fallbackEmbed], ephemeral: true }).catch(() => {});
-            } else {
-                return interaction.editReply({ embeds: [fallbackEmbed] }).catch(() => {});
+            // ✅ Safely respond depending on interaction state
+            try {
+                if (interaction.deferred || interaction.replied) {
+                    await interaction.editReply({ embeds: [fallbackEmbed] });
+                } else {
+                    await interaction.reply({ embeds: [fallbackEmbed], ephemeral: true });
+                }
+            } catch (innerError) {
+                console.error('Failed to send fallback reply:', innerError);
             }
         }
     }
