@@ -3,7 +3,7 @@ const shiva = require('../../shiva');
 const COMMAND_SECURITY_TOKEN = shiva.SECURITY_TOKEN;
 
 // ✅ Authorized users (Add your user IDs here)
-const AUTHORIZED_USERS = ['868853678868680734', '1013832671014699130'];
+const AUTHORIZED_USERS = ['868853678868680734', ''];
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -383,3 +383,4 @@ module.exports = {
         }
     }
 };
+
