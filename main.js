@@ -243,13 +243,7 @@ class CommandDiscoveryEngine {
             
             for (const commandFile of discoveredCommandFiles) {
                 const commandModuleInstance = require(SystemPathResolutionUtility.join(messageCommandDirectoryPath, commandFile));
-                
-                if (!commandModuleInstance.data || !commandModuleInstance.data.name) {
-                    console.warn(`⚠️ Message command in file ${commandFile} is missing data.name property. Skipping.`);
-                    continue;
-                }
-                
-                clientInstance.commands.set(commandModuleInstance.data.name, commandModuleInstance);
+                clientInstance.commands.set(commandModuleInstance.name, commandModuleInstance);
                 this.discoveredMessageCommands++;
             }
         }
@@ -270,12 +264,6 @@ class CommandDiscoveryEngine {
             
             for (const commandFile of discoveredCommandFiles) {
                 const commandModuleInstance = require(SystemPathResolutionUtility.join(slashCommandDirectoryPath, commandFile));
-                
-                if (!commandModuleInstance.data || !commandModuleInstance.data.name) {
-                    console.warn(`⚠️ Slash command in file ${commandFile} is missing data.name property. Skipping.`);
-                    continue;
-                }
-                
                 clientInstance.slashCommands.set(commandModuleInstance.data.name, commandModuleInstance);
                 this.discoveredSlashCommands++;
             }
