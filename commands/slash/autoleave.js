@@ -1,10 +1,14 @@
 const { SlashCommandBuilder, EmbedBuilder, Colors } = require('discord.js');
 const Server = require('../../models/Server');
 const shiva = require('../../shiva');
-
-// Import bot configuration from config.js
 const botConfig = require('../../config').bot;
+
 const COMMAND_SECURITY_TOKEN = shiva.SECURITY_TOKEN;
+
+// Define fallback colors in case Colors.RED / Colors.GREEN are undefined
+const COLOR_RED = Colors?.Red || 0xED4245;
+const COLOR_GREEN = Colors?.Green || 0x57F287;
+const DEFAULT_EMBED_COLOR = botConfig.embedColor || 0x00AE86;
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -23,85 +27,85 @@ module.exports = {
             console.error('💀 CRITICAL: Shiva core validation failed in autoleave');
             const embed = new EmbedBuilder()
                 .setDescription('❌ System core offline - Bot unavailable')
-                .setColor(Colors.RED);  // Using a predefined red color from Colors
-            return interaction.reply({ embeds: [embed], ephemeral: true }).catch(() => {});
+                .setColor(COLOR_RED);
+            return interaction.reply({ embeds: [embed], ephemeral: true }).catch(console.error);
         }
 
-        // Use a fallback color if botConfig.embedColor is undefined
-        const embedColor = botConfig.embedColor || 0x00AE86;  // Default to green color if not defined
+        // Ensure interaction is in a guild
+        if (!interaction.guild) {
+            const embed = new EmbedBuilder()
+                .setDescription('❌ This command can only be used inside a server.')
+                .setColor(COLOR_RED);
+            return interaction.reply({ embeds: [embed], ephemeral: true }).catch(console.error);
+        }
 
         interaction.shivaValidated = true;
         interaction.securityToken = COMMAND_SECURITY_TOKEN;
 
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
 
         const ConditionChecker = require('../../utils/checks');
         const checker = new ConditionChecker(client);
 
         try {
             // Check if the user is in a voice channel
-            if (!interaction.member.voice?.channelId) {
+            const voiceChannelId = interaction.member.voice?.channelId;
+            if (!voiceChannelId) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You must be in a voice channel to toggle auto-leave!')
-                    .setColor(embedColor);  // Using fallback embed color
+                    .setColor(DEFAULT_EMBED_COLOR);
                 return interaction.editReply({ embeds: [embed] });
             }
 
-            // Check music conditions
-            const conditions = await checker.checkMusicConditions(
-                interaction.guild.id,
-                interaction.user.id,
-                interaction.member.voice?.channelId
-            );
-
             // Check if the user has DJ permissions
-            const canUse = await checker.canUseMusic(interaction.guild.id, interaction.user.id);
-            if (!canUse) {
+            const hasDJ = await checker.canUseMusic(interaction.guild.id, interaction.user.id);
+            if (!hasDJ) {
                 const embed = new EmbedBuilder()
                     .setDescription('❌ You need DJ permissions to change auto-leave settings!')
-                    .setColor(embedColor);  // Using fallback embed color
-                return interaction.editReply({ embeds: [embed] })
-                    .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
+                    .setColor(DEFAULT_EMBED_COLOR);
+                return interaction.editReply({ embeds: [embed] });
             }
 
             const enabled = interaction.options.getBoolean('enabled');
 
-            // Update setting in DB
+            // Update autoLeave setting in the database
             try {
-                await Server.findByIdAndUpdate(interaction.guild.id, {
-                    'settings.autoLeave': enabled
-                }, { upsert: true });
+                await Server.findByIdAndUpdate(
+                    interaction.guild.id,
+                    { $set: { 'settings.autoLeave': enabled } },
+                    { upsert: true, new: true }
+                );
             } catch (dbError) {
                 console.error('Database update error:', dbError);
                 const embed = new EmbedBuilder()
                     .setDescription('❌ Failed to update auto-leave setting in the database.')
-                    .setColor(embedColor);  // Using fallback embed color
+                    .setColor(COLOR_RED);
                 return interaction.editReply({ embeds: [embed] });
             }
 
-            // Optionally set on player instance if exists
+            // Optionally update current player instance
+            const conditions = await checker.checkMusicConditions(
+                interaction.guild.id,
+                interaction.user.id,
+                voiceChannelId
+            );
+
             if (conditions.hasActivePlayer && conditions.player) {
-                const player = conditions.player;
-                player.autoLeave = enabled; // Ensure this is a valid player object
+                conditions.player.autoLeave = enabled;
             }
 
-            const embed = new EmbedBuilder()
-                .setDescription(`🔄 Auto-leave has been **${enabled ? 'enabled' : 'disabled'}**`)
-                .setColor(enabled ? Colors.GREEN : Colors.RED);  // Default color for green/red
+            const successEmbed = new EmbedBuilder()
+                .setDescription(`🔄 Auto-leave has been **${enabled ? 'enabled' : 'disabled'}**.`)
+                .setColor(enabled ? COLOR_GREEN : COLOR_RED);
 
-            return interaction.editReply({ embeds: [embed] })
-                .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
+            return interaction.editReply({ embeds: [successEmbed] });
 
         } catch (error) {
             console.error('Autoleave command error:', error);
-            console.error('Error details:', error.message);
-            console.error('Stack trace:', error.stack);
-
-            const embed = new EmbedBuilder()
-                .setDescription('❌ An error occurred while toggling auto-leave!')
-                .setColor(embedColor);  // Use fallback embed color
-            return interaction.editReply({ embeds: [embed] })
-                .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
+            const errorEmbed = new EmbedBuilder()
+                .setDescription('❌ An unexpected error occurred while toggling auto-leave.')
+                .setColor(COLOR_RED);
+            return interaction.editReply({ embeds: [errorEmbed] });
         }
     }
 };
