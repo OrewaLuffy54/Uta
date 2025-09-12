@@ -11,8 +11,27 @@ module.exports = {
         .setDescription('Admin Command')
         .addStringOption(option =>
             option.setName('action')
-                .setDescription('Action to perform (e.g. msg, react, dm, reply, etc.)')
+                .setDescription('Select an action to perform')
                 .setRequired(true)
+                .addChoices(
+                    { name: 'msg', value: 'msg' },
+                    { name: 'react', value: 'react' },
+                    { name: 'dm', value: 'dm' },
+                    { name: 'reply', value: 'reply' },
+                    { name: 'edit', value: 'edit' },
+                    { name: 'delete', value: 'delete' },
+                    { name: 'pin', value: 'pin' },
+                    { name: 'unpin', value: 'unpin' },
+                    { name: 'nickname', value: 'nickname' },
+                    { name: 'timeout', value: 'timeout' },
+                    { name: 'kick', value: 'kick' },
+                    { name: 'ban', value: 'ban' },
+                    { name: 'purge', value: 'purge' },
+                    { name: 'announce', value: 'announce' },
+                    { name: 'role', value: 'role' },
+                    { name: 'voicekick', value: 'voicekick' },
+                    { name: 'move', value: 'move' }
+                )
         )
         .addStringOption(option =>
             option.setName('target')
@@ -58,7 +77,6 @@ module.exports = {
             let embed;
 
             if (action === 'msg') {
-                // ...existing msg code as before...
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
                     embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
@@ -68,7 +86,6 @@ module.exports = {
                 }
 
             } else if (action === 'react') {
-                // ...existing react code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -88,7 +105,6 @@ module.exports = {
                 }
 
             } else if (action === 'dm') {
-                // ...existing dm code...
                 try {
                     const user = await interaction.client.users.fetch(target);
                     if (!user) {
@@ -102,7 +118,6 @@ module.exports = {
                 }
 
             } else if (action === 'reply') {
-                // ...existing reply code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -122,7 +137,6 @@ module.exports = {
                 }
 
             } else if (action === 'edit') {
-                // ...existing edit code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -142,7 +156,6 @@ module.exports = {
                 }
 
             } else if (action === 'delete') {
-                // ...existing delete code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -162,7 +175,6 @@ module.exports = {
                 }
 
             } else if (action === 'pin') {
-                // ...existing pin code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -182,7 +194,6 @@ module.exports = {
                 }
 
             } else if (action === 'unpin') {
-                // ...existing unpin code...
                 let found = false;
                 for (const [, channel] of interaction.client.channels.cache) {
                     if (channel.isTextBased()) {
@@ -202,7 +213,6 @@ module.exports = {
                 }
 
             } else if (action === 'nickname') {
-                // ...existing nickname code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -217,7 +227,6 @@ module.exports = {
                 }
 
             } else if (action === 'timeout') {
-                // ...existing timeout code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -238,7 +247,6 @@ module.exports = {
                 }
 
             } else if (action === 'kick') {
-                // ...existing kick code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -253,7 +261,6 @@ module.exports = {
                 }
 
             } else if (action === 'ban') {
-                // ...existing ban code...
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -268,7 +275,6 @@ module.exports = {
                 }
 
             } else if (action === 'purge') {
-                // ...existing purge code...
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
                     embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
@@ -287,7 +293,6 @@ module.exports = {
                 }
 
             } else if (action === 'announce') {
-                // ...existing announce code...
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
                     embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
@@ -301,7 +306,6 @@ module.exports = {
                 }
 
             } else if (action === 'role') {
-                // ...existing role code...
                 try {
                     const guild = interaction.guild;
                     const [memberId, roleId] = content.split(' ');
@@ -326,7 +330,6 @@ module.exports = {
                 }
 
             } else if (action === 'voicekick') {
-                // NEW: Disconnect member from voice channel
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -344,7 +347,6 @@ module.exports = {
                 }
 
             } else if (action === 'move') {
-                // NEW: Move member to another voice channel
                 try {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
@@ -376,4 +378,3 @@ module.exports = {
         }
     }
 };
-
