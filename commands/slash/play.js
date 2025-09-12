@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const shiva = require('../../shiva');
+
 const COMMAND_SECURITY_TOKEN = shiva.SECURITY_TOKEN;
 
 module.exports = {
@@ -14,41 +15,37 @@ module.exports = {
     securityToken: COMMAND_SECURITY_TOKEN,
 
     async execute(interaction, client) {
+        if (!shiva || !shiva.validateCore || !shiva.validateCore()) {
+            const embed = new EmbedBuilder()
+                .setDescription('❌ System core offline - Command unavailable')
+                .setColor('#FF0000');
+            return interaction.reply({ embeds: [embed], ephemeral: true }).catch(() => {});
+        }
+
+        interaction.shivaValidated = true;
+        interaction.securityToken = COMMAND_SECURITY_TOKEN;
+
+        await interaction.deferReply();
+
+        const ConditionChecker = require('../../utils/checks');
+        const PlayerHandler = require('../../utils/player');
+        const ErrorHandler = require('../../utils/errorHandler');
+        
+        const query = interaction.options.getString('query');
+
         try {
-            // ✅ Defer reply early to prevent timeout
-            await interaction.deferReply();
-
-            // ✅ Now validate core AFTER deferring
-            if (!shiva || !shiva.validateCore || !shiva.validateCore()) {
-                const embed = new EmbedBuilder()
-                    .setDescription('❌ System core offline - Command unavailable')
-                    .setColor('#FF0000');
-                await interaction.editReply({ embeds: [embed] });
-                return setTimeout(() => interaction.deleteReply().catch(() => {}), 3000);
-            }
-
-            interaction.shivaValidated = true;
-            interaction.securityToken = COMMAND_SECURITY_TOKEN;
-
-            // Load utils AFTER deferring
-            const ConditionChecker = require('../../utils/checks');
-            const PlayerHandler = require('../../utils/player');
-            const ErrorHandler = require('../../utils/errorHandler');
-
-            const query = interaction.options.getString('query');
             const checker = new ConditionChecker(client);
-
             const conditions = await checker.checkMusicConditions(
-                interaction.guild.id,
-                interaction.user.id,
+                interaction.guild.id, 
+                interaction.user.id, 
                 interaction.member.voice?.channelId
             );
 
             const errorMsg = checker.getErrorMessage(conditions, 'play');
             if (errorMsg) {
-                const embed = new EmbedBuilder().setDescription(errorMsg).setColor('#FF0000');
-                await interaction.editReply({ embeds: [embed] });
-                return setTimeout(() => interaction.deleteReply().catch(() => {}), 3000);
+                const embed = new EmbedBuilder().setDescription(errorMsg);
+                return interaction.editReply({ embeds: [embed] })
+                    .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
             }
 
             const playerHandler = new PlayerHandler(client);
@@ -60,44 +57,26 @@ module.exports = {
 
             const result = await playerHandler.playSong(player, query, interaction.user);
 
-            let embed;
             if (result.type === 'track') {
-                embed = new EmbedBuilder()
-                    .setDescription(`✅ Added to queue: **${result.track.info.title}**`)
-                    .setColor('#00FF00');
+                const embed = new EmbedBuilder().setDescription(`✅ Added to queue: **${result.track.info.title}**`);
+                return interaction.editReply({ embeds: [embed] })
+                    .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
             } else if (result.type === 'playlist') {
-                embed = new EmbedBuilder()
-                    .setDescription(`✅ Added **${result.tracks}** songs from playlist: **${result.name}**`)
-                    .setColor('#00FF00');
+                const embed = new EmbedBuilder().setDescription(`✅ Added **${result.tracks}** songs from playlist: **${result.name}**`);
+                return interaction.editReply({ embeds: [embed] })
+                    .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
             } else {
-                embed = new EmbedBuilder()
-                    .setDescription('❌ No results found for your query!')
-                    .setColor('#FF0000');
+                const embed = new EmbedBuilder().setDescription('❌ No results found for your query!');
+                return interaction.editReply({ embeds: [embed] })
+                    .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
             }
-
-            await interaction.editReply({ embeds: [embed] });
-            setTimeout(() => interaction.deleteReply().catch(() => {}), 3000);
 
         } catch (error) {
             console.error('Play slash command error:', error);
-
-            const ErrorHandler = require('../../utils/errorHandler');
-            ErrorHandler.handle?.(error, 'play slash command');
-
-            const fallbackEmbed = new EmbedBuilder()
-                .setDescription('❌ An error occurred while trying to play music!')
-                .setColor('#FF0000');
-
-            // ✅ Safely respond depending on interaction state
-            try {
-                if (interaction.deferred || interaction.replied) {
-                    await interaction.editReply({ embeds: [fallbackEmbed] });
-                } else {
-                    await interaction.reply({ embeds: [fallbackEmbed], ephemeral: true });
-                }
-            } catch (innerError) {
-                console.error('Failed to send fallback reply:', innerError);
-            }
+            ErrorHandler.handle(error, 'play slash command');
+            const embed = new EmbedBuilder().setDescription('❌ An error occurred while trying to play music!');
+            return interaction.editReply({ embeds: [embed] })
+                .then(() => setTimeout(() => interaction.deleteReply().catch(() => {}), 3000));
         }
     }
 };
