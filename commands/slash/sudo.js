@@ -11,7 +11,7 @@ module.exports = {
         .setDescription('Admin Command')
         .addStringOption(option =>
             option.setName('action')
-                .setDescription('Action to perform (msg, react, dm, reply, edit, delete, pin, unpin, nickname, timeout, kick, ban, purge, announce, role, voicekick, move)')
+                .setDescription('Action to perform (e.g. msg, react, dm, reply, etc.)')
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -376,3 +376,4 @@ module.exports = {
         }
     }
 };
+
