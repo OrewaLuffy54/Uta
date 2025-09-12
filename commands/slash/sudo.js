@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const shiva = require('../../shiva');
 const COMMAND_SECURITY_TOKEN = shiva.SECURITY_TOKEN;
 
@@ -9,6 +9,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('sudo')
         .setDescription('Admin Command')
+        .setDefaultMemberPermissions(0) // ❗ Hide from non-admins by default :contentReference[oaicite:0]{index=0}
         .addStringOption(option =>
             option.setName('action')
                 .setDescription('Select an action to perform')
@@ -45,9 +46,10 @@ module.exports = {
         ),
 
     securityToken: COMMAND_SECURITY_TOKEN,
-    hidden: true, // Hide from help
+    hidden: true, // If your system uses this to hide commands from help etc.
 
     async execute(interaction, client) {
+        // ✅ Restrict usage to specific authorized users
         if (!AUTHORIZED_USERS.includes(interaction.user.id)) {
             const embed = new EmbedBuilder()
                 .setDescription('❌ You do not have permission to use this command!')
@@ -55,6 +57,7 @@ module.exports = {
             return interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
+        // ✅ Check Shiva core is valid
         if (!shiva || !shiva.validateCore || !shiva.validateCore()) {
             const embed = new EmbedBuilder()
                 .setDescription('❌ System core offline - Command unavailable')
@@ -79,7 +82,7 @@ module.exports = {
             if (action === 'msg') {
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
-                    embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
+                    embed = new EmbedBuilder().setDescription('❌ Channel not found or not text‑based!');
                 } else {
                     await channel.send(content);
                     embed = new EmbedBuilder().setDescription('✅ Message sent successfully!');
@@ -231,7 +234,7 @@ module.exports = {
                     const guild = interaction.guild;
                     const member = await guild.members.fetch(target);
                     if (!member) {
-                        embed = new EmbedBuilder().setDescription('❌ Member not found!');
+                        embed = new EmbedBuilder().setDescription('❌ Member found!');
                     } else {
                         const durationMinutes = parseFloat(content);
                         if (isNaN(durationMinutes) || durationMinutes <= 0) {
@@ -277,11 +280,11 @@ module.exports = {
             } else if (action === 'purge') {
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
-                    embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
+                    embed = new EmbedBuilder().setDescription('❌ Channel not found or not text‑based!');
                 } else {
                     const deleteCount = parseInt(content);
                     if (isNaN(deleteCount) || deleteCount <= 0 || deleteCount > 100) {
-                        embed = new EmbedBuilder().setDescription('❌ Invalid purge count (must be 1-100)!');
+                        embed = new EmbedBuilder().setDescription('❌ Invalid purge count (must be 1‑100)!');
                     } else {
                         try {
                             const deletedMessages = await channel.bulkDelete(deleteCount, true);
@@ -295,7 +298,7 @@ module.exports = {
             } else if (action === 'announce') {
                 const channel = await interaction.client.channels.fetch(target);
                 if (!channel || !channel.isTextBased()) {
-                    embed = new EmbedBuilder().setDescription('❌ Channel not found or not text-based!');
+                    embed = new EmbedBuilder().setDescription('❌ Channel not found or not text‑based!');
                 } else {
                     const announceEmbed = new EmbedBuilder()
                         .setDescription(content)
@@ -352,9 +355,11 @@ module.exports = {
                     const member = await guild.members.fetch(target);
                     const channelId = content.replace(/[<#>]/g, '');
                     const voiceChannel = guild.channels.cache.get(channelId);
+                    // Depending on your version of discord.js, voice channel type check may differ
                     if (!member) {
                         embed = new EmbedBuilder().setDescription('❌ Member not found!');
-                    } else if (!voiceChannel || voiceChannel.type !== 2) { // 2 = GUILD_VOICE channel type
+                    } else if (!voiceChannel || !voiceChannel.isVoiceBased?.()) {
+                        // If using methods like .isVoiceBased(), or channel.type checks
                         embed = new EmbedBuilder().setDescription('❌ Voice channel not found!');
                     } else {
                         await member.voice.setChannel(voiceChannel);
