@@ -13,18 +13,16 @@ class EnterpriseConfigurationManager {
     constructor() {
         this.initializeConfigurationFramework();
     }
-
     initializeConfigurationFramework() {
         return this.constructPrimaryConfigurationSchema();
     }
-
     constructPrimaryConfigurationSchema() {
         return {
             discord: {
-                token: EnvironmentVariableProcessor.TOKEN || "",  // Your Discord Bot Token (set in environment variables or .env)
+                token: EnvironmentVariableProcessor.TOKEN || ""
             },
             mongodb: {
-                uri: EnvironmentVariableProcessor.MONGODB_URI || ""  // MongoDB URI (set in environment variables or .env)
+                uri: EnvironmentVariableProcessor.MONGODB_URI || ""  
             },
             
             /**
@@ -32,46 +30,49 @@ class EnterpriseConfigurationManager {
              * Configure your Lavalink server for audio processing
              */
             lavalink: {
-                host: EnvironmentVariableProcessor.LAVALINK_HOST || "5.39.63.207", // Lavalink host address
-                port: EnvironmentVariableProcessor.LAVALINK_PORT || 8262,           // Lavalink port
-                password: EnvironmentVariableProcessor.LAVALINK_PASSWORD || "glace", // Lavalink password
-                secure: EnvironmentVariableProcessor.LAVALINK_SECURE === 'true' || false // Use secure connection
+                host: EnvironmentVariableProcessor.LAVALINK_HOST || "5.39.63.207", 
+                port: EnvironmentVariableProcessor.LAVALINK_PORT || 8262,       
+                password: EnvironmentVariableProcessor.LAVALINK_PASSWORD || "glace", 
+                secure: EnvironmentVariableProcessor.LAVALINK_SECURE === 'true' || false
             },
-
+            
             /**
              * 🤖 BOT BEHAVIOR CONFIGURATION
              * Customize your bot's appearance and basic behavior
              */
             bot: {
-                prefix: EnvironmentVariableProcessor.BOT_PREFIX || "~",  // Bot command prefix (default "~")
-                ownerIds: ["868853678868680734", "1013832671014699130"],  // Owner IDs for controlling the bot (replace with your own)
-                embedColor: 0x00AE86,               // Embed color for the bot's messages (Hex color code)
-                supportServer: "https://discord.gg/CfxxxVA5SU",    // Link to the support server (replace with your own)
-                defaultStatus: "🎵 Ready for music!" // Default status message for the bot
+                prefix: EnvironmentVariableProcessor.BOT_PREFIX || "~",  // 👈 prefix (!, ?, etc)
+                ownerIds: ["868853678868680734", "1013832671014699130"],      // 👈 ADD YOUR DISCORD ID HERE
+                embedColor: 0x00AE86,               // 👈 Bot embed color (hex)
+                supportServer: "https://discord.gg/CfxxxVA5SU",    // 👈 Your support server link
+                defaultStatus: "🎵 Ready for music!"         // 👈 Bot status message
             },
-
+            
             features: this.constructAdvancedFeatureConfiguration()
         };
     }
-
+    
     constructAdvancedFeatureConfiguration() {
         return {
-            autoplay: false,           // Auto-play the next song when queue ends
-            centralSystem: true,      // Enable the central control system for music management
-            autoVcCreation: true,     // Automatically create voice channels (premium feature)
-            updateStatus: true,       // Update the bot's status with the current playing song
-            autoDeaf: true,           // Automatically deafen the bot in voice channels
-            autoMute: false,          // Automatically mute the bot in voice channels (disabled)
-            resetOnEnd: true          // Reset the player when the queue ends
+            autoplay: false,           // 👈 Auto-play related songs when queue ends
+            centralSystem: true,      // 👈 Enable central music control system
+            autoVcCreation: true,     // 👈 🔥 PREMIUM: Auto voice channel creation
+            updateStatus: true,       // 👈 Update bot status with current song  
+            autoDeaf: true,           // 👈 Auto-deafen bot in voice channels
+            autoMute: false,          // 👈 Auto-mute bot in voice channels
+            resetOnEnd: true          // 👈 Reset player when queue ends
         };
     }
 }
 
-// Create the configuration instance
 const enterpriseConfigurationInstance = new EnterpriseConfigurationManager();
-
-// Initialize and export the configuration object
 const primaryApplicationConfiguration = enterpriseConfigurationInstance.initializeConfigurationFramework();
+
+/**
+ * Export configuration for application-wide utilization
+ * 
+ * @type {Object} Comprehensive application configuration object
+ */
 module.exports = primaryApplicationConfiguration;
 
 /**
@@ -91,17 +92,12 @@ module.exports = primaryApplicationConfiguration;
  * - Toggle features on/off in the "features" section
  * 
  * 🌍 ENVIRONMENT VARIABLES (RECOMMENDED):
- * Instead of editing this file directly, you can use a `.env` file for security:
- * 
- * Example `.env` file:
+ * Instead of editing this file, you can use .env file:
  * TOKEN=your_bot_token_here
  * MONGODB_URI=your_mongodb_uri_here
- * LAVALINK_HOST=your_lavalink_host_here
- * LAVALINK_PORT=your_lavalink_port_here
- * LAVALINK_PASSWORD=your_lavalink_password_here
- * BOT_PREFIX=~
+ * BOT_PREFIX=!
  * 
  * ⚠️ SECURITY WARNING:
  * Never share your bot token or database URI publicly!
- * It's strongly recommended to use environment variables in production environments.
+ * Use environment variables in production!
  */
