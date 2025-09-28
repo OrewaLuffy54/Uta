@@ -15,7 +15,7 @@ class CentralEmbedHandler {
             .setAuthor({ name: 'Uta Music Control Center', iconURL: 'https://cdn.discordapp.com/emojis/896724352949706762.gif', url: 'https://discord.gg/CfxxxVA5SU' })
                 .setDescription([
                     '',
-                    '- Simply type a **song name** or **YouTube link** to start the party!',
+                    '- Simply type a **song name** or **Spotify, YouTube link** to start the party!',
                     '',
                     '✨ *Ready to fill this place with amazing music?*'
                 ].join('\n'))
@@ -364,5 +364,6 @@ class CentralEmbedHandler {
 }
 
 module.exports = CentralEmbedHandler;
+
 
 
