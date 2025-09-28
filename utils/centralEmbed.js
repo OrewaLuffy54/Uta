@@ -16,7 +16,6 @@ class CentralEmbedHandler {
                 .setDescription([
                     '',
                     '- Simply type a **song name** or **YouTube link** to start the party!',
-                    '- In free version I only support **YouTube** only.',
                     '',
                     '✨ *Ready to fill this place with amazing music?*'
                 ].join('\n'))
@@ -365,4 +364,5 @@ class CentralEmbedHandler {
 }
 
 module.exports = CentralEmbedHandler;
+
 
