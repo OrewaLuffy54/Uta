@@ -30,9 +30,9 @@ class EnterpriseConfigurationManager {
              * Configure your Lavalink server for audio processing
              */
             lavalink: {
-                host: EnvironmentVariableProcessor.LAVALINK_HOST || "lavalink.jirayu.net", 
-                port: EnvironmentVariableProcessor.LAVALINK_PORT ||  13592,       
-                password: EnvironmentVariableProcessor.LAVALINK_PASSWORD || "youshallnotpass", 
+                host: EnvironmentVariableProcessor.LAVALINK_HOST || "5.39.63.207", 
+                port: EnvironmentVariableProcessor.LAVALINK_PORT ||  8262,       
+                password: EnvironmentVariableProcessor.LAVALINK_PASSWORD || "glace", 
                 secure: EnvironmentVariableProcessor.LAVALINK_SECURE === 'true' || false
             },
             
@@ -58,7 +58,7 @@ class EnterpriseConfigurationManager {
             centralSystem: true,      // 👈 Enable central music control system
             autoVcCreation: true,     // 👈 🔥 PREMIUM: Auto voice channel creation
             updateStatus: true,       // 👈 Update bot status with current song  
-            autoDeaf: true,           // 👈 Auto-deafen bot in voice channels
+            autoDeaf: false,           // 👈 Auto-deafen bot in voice channels
             autoMute: false,          // 👈 Auto-mute bot in voice channels
             resetOnEnd: true          // 👈 Reset player when queue ends
         };
@@ -101,6 +101,7 @@ module.exports = primaryApplicationConfiguration;
  * Never share your bot token or database URI publicly!
  * Use environment variables in production!
  */
+
 
 
 
